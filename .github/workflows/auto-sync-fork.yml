@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 env:
-  UPSTREAM: https://github.com/<上游用户名>/<上游仓库>.git
+  UPSTREAM: https://github.com/<huangxd->/<ForwardWidgets>.git
   BRANCH: main   # 如果上游默认分支叫 master，就改成 master
 
 jobs:
