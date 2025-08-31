@@ -1,0 +1,37 @@
+name: Auto Sync Fork
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 每天 02:00 (UTC) 自动跑；新加坡时间=UTC+8，即每天上午10点
+  workflow_dispatch:       # 允许手动触发
+
+permissions:
+  contents: write
+
+env:
+  UPSTREAM: https://github.com/<上游用户名>/<上游仓库>.git
+  BRANCH: main   # 如果上游默认分支叫 master，就改成 master
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout my fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream
+        run: git remote add upstream "$UPSTREAM"
+
+      - name: Fetch upstream
+        run: git fetch upstream
+
+      - name: Merge upstream -> my fork
+        run: |
+          git checkout "$BRANCH" || git checkout -b "$BRANCH"
+          # 先尝试快进合并，失败就普通合并（自动生成合并提交）
+          git merge --ff-only "upstream/$BRANCH" || git merge "upstream/$BRANCH" --no-edit
+
+      - name: Push back to my fork
+        run: git push origin "$BRANCH"
